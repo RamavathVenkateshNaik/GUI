@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Transistor GPR Prediction</title>
+</head>
+<body>
+    <h2>Enter Input Parameters</h2>
+    <form method="POST" action="/">
+        <label>Temperature (K): <input type="number" name="temperature" required step="any"></label><br><br>
+        <label>Voltage (V): <input type="number" name="voltage" required step="any"></label><br><br>
+        <label>Layers: <input type="number" name="layers" required></label><br><br>
+        <label>n_max: <input type="number" name="nmax" required step="any"></label><br><br>
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if thickness %}
+        <h3>Calculated Thickness: {{ thickness }} meters</h3>
+    {% endif %}
+
+    {% if plot_url %}
+        <h3>Prediction Graph</h3>
+        <img src="{{ plot_url }}" alt="Graph of Prediction" />
+    {% endif %}
+</body>
+</html>
