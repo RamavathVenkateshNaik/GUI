@@ -5,23 +5,22 @@ import os
 
 # List of data directories
 data_directories = [
-    "/home/sujith/Documents/ML/n1a1data/53L/15K53L/",
-    "/home/sujith/Documents/ML/n1a1data/53L/50K53L/",
-    "/home/sujith/Documents/ML/n1a1data/53L/77K53L/",
-    "/home/sujith/Documents/ML/n1a1data/53L/100K53L/",
-    "/home/sujith/Documents/ML/n1a1data/53L/150K53L/",
-    "/home/sujith/Documents/ML/n1a1data/53L/200K53L/",
-    "/home/sujith/Documents/ML/n1a1data/53L/250K53L/",
-    "/home/sujith/Documents/ML/n1a1data/53L/300K53L/"
+    "/home/sujith/Documents/ML/n1a1data/75L/15K75L/",
+    "/home/sujith/Documents/ML/n1a1data/75L/50K75L/",
+    "/home/sujith/Documents/ML/n1a1data/75L/77K75L/",
+    "/home/sujith/Documents/ML/n1a1data/75L/100K75L/",
+    "/home/sujith/Documents/ML/n1a1data/75L/150K75L/",
+    "/home/sujith/Documents/ML/n1a1data/75L/200K75L/",
+    "/home/sujith/Documents/ML/n1a1data/75L/250K75L/",
+    "/home/sujith/Documents/ML/n1a1data/75L/300K75L/"
 ]
 
 """data_directories = [
-    "/home/sujith/Documents/ML/n1a1data/53L/15K53L/",
-    "/home/sujith/Documents/ML/n1a1data/53L/50K53L/",
-    "/home/sujith/Documents/ML/n1a1data/53L/77K53L/",
-    "/home/sujith/Documents/ML/n1a1data/53L/100K53L/",
-    "/home/sujith/Documents/ML/n1a1data/53L/150K53L/"
-
+    "/home/sujith/Documents/ML/n1a1data/75L/15K75L/",
+    "/home/sujith/Documents/ML/n1a1data/75L/50K75L/",
+    "/home/sujith/Documents/ML/n1a1data/75L/77K75L/",
+    "/home/sujith/Documents/ML/n1a1data/75L/100K75L/",
+    "/home/sujith/Documents/ML/n1a1data/75L/150K75L/"
 ]"""
 
 # Extract directory names for legend labels
@@ -101,7 +100,7 @@ plt.tight_layout()
 plt.subplots_adjust(top=0.93, right=0.85)
 
 # Save the combined plot
-output_path = "/home/sujith/Documents/ML/n1a1data/53L/combined_parameters_all_datasets.png"
+output_path = "/home/sujith/Documents/ML/n1a1data/75L/combined_parameters_all_datasets.png"
 plt.savefig(output_path, dpi=300, bbox_inches='tight')
 print(f"\nCombined plot saved as: {output_path}")
 
