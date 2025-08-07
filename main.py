@@ -8,17 +8,17 @@ import time
 
 # List of data directories (replace with your actual directories)
 data_directories = [
-    "/home/sujith/Documents/ML/n1a1data/31L/15K31L/",
-    "/home/sujith/Documents/ML/n1a1data/31L/50K31L/",
-    "/home/sujith/Documents/ML/n1a1data/31L/77K31L/",
-    "/home/sujith/Documents/ML/n1a1data/31L/100K31L/",
-    "/home/sujith/Documents/ML/n1a1data/31L/150K31L/",
-    "/home/sujith/Documents/ML/n1a1data/31L/200K31L/",
-    "/home/sujith/Documents/ML/n1a1data/31L/250K31L/",
-    "/home/sujith/Documents/ML/n1a1data/31L/300K31L/"
+    "/home/sujith/Documents/ML/n1a1data/53L/15K53L/",
+    "/home/sujith/Documents/ML/n1a1data/53L/50K53L/",
+    "/home/sujith/Documents/ML/n1a1data/53L/77K53L/",
+    "/home/sujith/Documents/ML/n1a1data/53L/100K53L/",
+    "/home/sujith/Documents/ML/n1a1data/53L/150K53L/",
+    "/home/sujith/Documents/ML/n1a1data/53L/200K53L/",
+    "/home/sujith/Documents/ML/n1a1data/53L/250K53L/",
+    "/home/sujith/Documents/ML/n1a1data/53L/300K53L/"
 ]
 
-data_directories = data_directories[2:5]
+data_directories = data_directories[5:]
 
 # --- Physics-Based Model Function ---
 def physical_model(x, a0, a1, n1, tsi, n_max):
@@ -36,7 +36,7 @@ def linear_trend_objective(params, x, original_y, tsi, n_max, a0, expected_a1, e
     predicted_y = physical_model(x, a0, a1, n1, tsi, n_max)
     mse = mean_squared_error(original_y, predicted_y)
     
-    # Linear trend penalty to ensure smooth increase
+    # Linear trend penalty for both a1 and n1
     trend_penalty = 0
     if expected_a1 is not None:
         trend_penalty += abs(a1 - expected_a1) * trend_weight
@@ -62,7 +62,7 @@ for dir_idx, data_dir in enumerate(data_directories):
     x = data[0].values.reshape(-1, 1)
     x_0_idx = np.argmin(np.abs(x))
     # --- Constants ---
-    tsi = 4.0725   # given
+    tsi = 7.0590   # given
 
     # --- Load z_data from vg.csv ---
     vg = pd.read_csv(vg_path, delimiter='\t', header=None)
@@ -80,8 +80,8 @@ for dir_idx, data_dir in enumerate(data_directories):
     n1_list = []
 
     # --- Initial bounds for a1 and n1 ---
-    a1_bounds = (0.000001, 1.3)
-    n1_bounds = (0.003936, 1)
+    a1_bounds = (0.01, 2.2)
+    n1_bounds = (0.0001, 2)
 
     # --- Calculate linear trend targets ---
     num_columns = 21
@@ -90,9 +90,9 @@ for dir_idx, data_dir in enumerate(data_directories):
     a1_min, a1_max = a1_bounds
     a1_targets = np.linspace(a1_min, a1_max, num_columns)
     
-    # For n1: linear increase from min to max bound
+    # For n1: linear decrease from max to min bound
     n1_min, n1_max = n1_bounds
-    n1_targets = np.linspace(n1_min, n1_max, num_columns)
+    n1_targets = np.linspace(n1_max, n1_min, num_columns)
 
     # --- Sequential optimization variables ---
     prev_a1 = None
@@ -115,26 +115,15 @@ for dir_idx, data_dir in enumerate(data_directories):
         expected_a1 = a1_targets[col-1]
         expected_n1 = n1_targets[col-1]
         
-        print(f"Target a1 = {expected_a1:.6f}, Target n1 = {expected_n1:.6f}")
+        print(f"Target a1 = {expected_a1:.6f}, n1 = {expected_n1:.6f}")
         
         # Set bounds around expected values with some tolerance
-        tolerance_a1 = (a1_max - a1_min) * 0.10  # 10% tolerance
-        tolerance_n1 = (n1_max - n1_min) * 0.10  # 10% tolerance
-        
-        # Sequential optimization: use previous values as minimum bounds
-        if prev_a1 is not None:
-            a1_lower = max(prev_a1, expected_a1 - tolerance_a1)
-        else:
-            a1_lower = max(a1_min, expected_a1 - tolerance_a1)
-            
-        if prev_n1 is not None:
-            n1_lower = max(prev_n1, expected_n1 - tolerance_n1)
-        else:
-            n1_lower = max(n1_min, expected_n1 - tolerance_n1)
+        tolerance_a1 = (a1_max - a1_min) * 0.10 # 10% tolerance for a1
+        tolerance_n1 = (n1_max - n1_min) * 0.10 # 10% tolerance for n1
         
         bounds = [
-            (a1_lower, min(a1_max, expected_a1 + tolerance_a1)),
-            (n1_lower, min(n1_max, expected_n1 + tolerance_n1))
+            (max(a1_min, expected_a1 - tolerance_a1), min(a1_max, expected_a1 + tolerance_a1)),
+            (max(n1_min, expected_n1 - tolerance_n1), min(n1_max, expected_n1 + tolerance_n1))
         ]
         
         print(f"Optimization bounds: a1={bounds[0]}, n1={bounds[1]}")
@@ -187,7 +176,7 @@ for dir_idx, data_dir in enumerate(data_directories):
     # Plot a1 vs z
     plt.subplot(1, 2, 1)
     plt.plot(z_data, a1_list, 'o-', color='green')
-    plt.title('a1 vs z (Linear Trend)')
+    plt.title('a1 vs z (Linear Increasing Trend)')
     plt.xlabel('z')
     plt.ylabel('a1')
     plt.xticks(np.linspace(min(z_data), max(z_data), 6))
@@ -196,7 +185,7 @@ for dir_idx, data_dir in enumerate(data_directories):
     # Plot n1 vs z
     plt.subplot(1, 2, 2)
     plt.plot(z_data, n1_list, 'x-', color='purple')
-    plt.title('n1 vs z (Linear Trend)')
+    plt.title('n1 vs z (Linear Decreasing Trend)')
     plt.xlabel('z')
     plt.ylabel('n1')
     plt.xticks(np.linspace(min(z_data), max(z_data), 6))
@@ -204,7 +193,7 @@ for dir_idx, data_dir in enumerate(data_directories):
 
     plt.tight_layout()
     # Save the parameter patterns plot in the current data directory
-    parameters_pattern_filename = os.path.join(data_dir, 'Linear_Trend_a1_n1.png')
+    parameters_pattern_filename = os.path.join(data_dir, 'Linear_Trend_a1_increasing_n1_decreasing.png')
     plt.savefig(parameters_pattern_filename, dpi=300)
     print(f"Parameter patterns plot saved as {parameters_pattern_filename}")
     plt.close()
@@ -221,6 +210,8 @@ for dir_idx, data_dir in enumerate(data_directories):
 print("\n\n" + "="*50)
 print("PROCESSING COMPLETE")
 print("="*50)
-print("All datasets processed with linear trend optimization for a1 and n1")
+print("All datasets processed with linear trend optimization:")
+print("- a1: Linear increasing trend")
+print("- n1: Linear decreasing trend")
 print("a0 and n0 values extracted from existing dataprep.csv files")
 print("Existing dataprep.csv files updated with optimized a1 and n1 parameters")
