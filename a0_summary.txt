@@ -1,11 +1,11 @@
-Dataset 1 (/home/sujith/Documents/ML/17L/15K17L/): a0_avg = 0.809307
-Dataset 2 (/home/sujith/Documents/ML/17L/50K17L/): a0_avg = 0.815793
-Dataset 3 (/home/sujith/Documents/ML/17L/77K17L/): a0_avg = 0.817277
-Dataset 4 (/home/sujith/Documents/ML/17L/100K17L/): a0_avg = 0.817923
-Dataset 5 (/home/sujith/Documents/ML/17L/150K17L/): a0_avg = 0.814343
-Dataset 6 (/home/sujith/Documents/ML/17L/200K17L/): a0_avg = 0.818134
-Dataset 7 (/home/sujith/Documents/ML/17L/250K17L/): a0_avg = 0.817722
-Dataset 8 (/home/sujith/Documents/ML/17L/300K17L/): a0_avg = 0.823676
+Dataset 1 (/home/sujith/Documents/ML/31L/15K31L/): a0_avg = 0.915859
+Dataset 2 (/home/sujith/Documents/ML/31L/50K31L/): a0_avg = 0.917649
+Dataset 3 (/home/sujith/Documents/ML/31L/77K31L/): a0_avg = 0.917217
+Dataset 4 (/home/sujith/Documents/ML/31L/100K31L/): a0_avg = 0.917039
+Dataset 5 (/home/sujith/Documents/ML/31L/150K31L/): a0_avg = 0.915422
+Dataset 6 (/home/sujith/Documents/ML/31L/200K31L/): a0_avg = 0.911907
+Dataset 7 (/home/sujith/Documents/ML/31L/250K31L/): a0_avg = 0.908182
+Dataset 8 (/home/sujith/Documents/ML/31L/300K31L/): a0_avg = 0.910620
 
-Overall average a0 value: 0.816772
+Overall average a0 value: 0.914237
 

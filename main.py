@@ -8,28 +8,28 @@ import time
 
 # List of data directories (replace with your actual directories)
 data_directories = [
-    "/home/sujith/Documents/ML/n1a1data/17L/15K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/50K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/77K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/100K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/150K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/200K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/250K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/300K17L/"
+    "/home/sujith/Documents/ML/n1a1data/31L/15K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/50K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/77K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/100K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/150K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/200K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/250K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/300K31L/"
 ]
 
-data_directories = data_directories[5:]
+data_directories = data_directories[2:5]
 
 # --- Physics-Based Model Function ---
 def physical_model(x, a0, a1, n1, tsi, n_max):
-    n0 = 1.0  # Fixed constant
+    n0 = nc/n_max  
     pi_x_tsi = np.pi * x / tsi
     cos2_term = np.cos(a0 * pi_x_tsi) ** 2
     sinh2_term = np.sinh(a1 * pi_x_tsi) ** 2
     return (n0 * cos2_term + n1 * sinh2_term * cos2_term) * n_max
 
 # --- Linear Trend Objective Function ---
-def linear_trend_objective(params, x, original_y, tsi, n_max, a0, expected_a1, expected_n1, trend_weight=1000):
+def linear_trend_objective(params, x, original_y, tsi, n_max, a0, expected_a1, expected_n1, trend_weight=5000):
     a1, n1 = params
     
     # Primary objective: fitting error
@@ -60,9 +60,9 @@ for dir_idx, data_dir in enumerate(data_directories):
     # --- Load Data ---
     data = pd.read_csv(xchdata_path, header=None)
     x = data[0].values.reshape(-1, 1)
-
+    x_0_idx = np.argmin(np.abs(x))
     # --- Constants ---
-    tsi = 2.17   # given
+    tsi = 4.0725   # given
 
     # --- Load z_data from vg.csv ---
     vg = pd.read_csv(vg_path, delimiter='\t', header=None)
@@ -80,8 +80,8 @@ for dir_idx, data_dir in enumerate(data_directories):
     n1_list = []
 
     # --- Initial bounds for a1 and n1 ---
-    a1_bounds = (0.000001, 0.1)
-    n1_bounds = (0.003936, 0.01024)
+    a1_bounds = (0.000001, 1.3)
+    n1_bounds = (0.003936, 1)
 
     # --- Calculate linear trend targets ---
     num_columns = 21
@@ -94,13 +94,17 @@ for dir_idx, data_dir in enumerate(data_directories):
     n1_min, n1_max = n1_bounds
     n1_targets = np.linspace(n1_min, n1_max, num_columns)
 
+    # --- Sequential optimization variables ---
+    prev_a1 = None
+    prev_n1 = None
+
     # --- Loop through columns Y[1] to Y[21] ---
     for col in range(1, 22):
         print(f"\n{'='*20} Processing Y[{col}] {'='*20}")
         
         original_y = data[col].values
         n_max = max(original_y)
-        
+        nc = original_y[x_0_idx]  # value at x closest to 0
         # Get a0 and n0 from existing data
         a0 = a0_values[col-1]  # col-1 because columns are 1-indexed but arrays are 0-indexed
         n0 = n0_values[col-1]
@@ -114,12 +118,23 @@ for dir_idx, data_dir in enumerate(data_directories):
         print(f"Target a1 = {expected_a1:.6f}, Target n1 = {expected_n1:.6f}")
         
         # Set bounds around expected values with some tolerance
-        tolerance_a1 = (a1_max - a1_min) * 0.1  # 10% tolerance
-        tolerance_n1 = (n1_max - n1_min) * 0.1  # 10% tolerance
+        tolerance_a1 = (a1_max - a1_min) * 0.10  # 10% tolerance
+        tolerance_n1 = (n1_max - n1_min) * 0.10  # 10% tolerance
+        
+        # Sequential optimization: use previous values as minimum bounds
+        if prev_a1 is not None:
+            a1_lower = max(prev_a1, expected_a1 - tolerance_a1)
+        else:
+            a1_lower = max(a1_min, expected_a1 - tolerance_a1)
+            
+        if prev_n1 is not None:
+            n1_lower = max(prev_n1, expected_n1 - tolerance_n1)
+        else:
+            n1_lower = max(n1_min, expected_n1 - tolerance_n1)
         
         bounds = [
-            (max(a1_min, expected_a1 - tolerance_a1), min(a1_max, expected_a1 + tolerance_a1)),
-            (max(n1_min, expected_n1 - tolerance_n1), min(n1_max, expected_n1 + tolerance_n1))
+            (a1_lower, min(a1_max, expected_a1 + tolerance_a1)),
+            (n1_lower, min(n1_max, expected_n1 + tolerance_n1))
         ]
         
         print(f"Optimization bounds: a1={bounds[0]}, n1={bounds[1]}")
@@ -140,6 +155,10 @@ for dir_idx, data_dir in enumerate(data_directories):
         a1_list.append(best_a1)
         n1_list.append(best_n1)
         
+        # Update previous values for next iteration
+        prev_a1 = best_a1
+        prev_n1 = best_n1
+        
         predicted_y = np.squeeze(physical_model(x, a0, best_a1, best_n1, tsi, n_max))
         
         print("\nOptimized parameters:")
@@ -159,7 +178,7 @@ for dir_idx, data_dir in enumerate(data_directories):
         plt.grid(True)
         plt.tight_layout()
         plt.show(block=False)
-        plt.pause(0.5)  # Show plot for 0.5 seconds
+        plt.pause(0.8)  # Show plot for 0.5 seconds
         plt.close()
 
     # Plot parameter variations

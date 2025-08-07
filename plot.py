@@ -5,15 +5,24 @@ import os
 
 # List of data directories
 data_directories = [
-    "/home/sujith/Documents/ML/n1a1data/17L/15K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/50K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/77K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/100K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/150K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/200K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/250K17L/",
-    "/home/sujith/Documents/ML/n1a1data/17L/300K17L/"
+    "/home/sujith/Documents/ML/n1a1data/31L/15K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/50K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/77K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/100K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/150K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/200K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/250K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/300K31L/"
 ]
+
+"""data_directories = [
+    "/home/sujith/Documents/ML/n1a1data/31L/15K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/50K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/77K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/100K31L/",
+    "/home/sujith/Documents/ML/n1a1data/31L/150K31L/"
+
+]"""
 
 # Extract directory names for legend labels
 dir_labels = [os.path.basename(os.path.normpath(dir_path)) for dir_path in data_directories]
@@ -42,7 +51,7 @@ if not all_data:
 
 # Create the plots
 fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-fig.suptitle('Parameter Variations Across All Datasets', fontsize=16, fontweight='bold')
+fig.suptitle('Input Variations Across All Datasets', fontsize=13, fontweight='bold')
 
 # Define colors for different datasets
 colors = plt.cm.tab10(np.linspace(0, 1, len(all_data)))
@@ -92,7 +101,7 @@ plt.tight_layout()
 plt.subplots_adjust(top=0.93, right=0.85)
 
 # Save the combined plot
-output_path = "/home/sujith/Documents/ML/n1a1data/17L/n1a1_parameters_all_datasets.png"
+output_path = "/home/sujith/Documents/ML/n1a1data/31L/combined_parameters_all_datasets.png"
 plt.savefig(output_path, dpi=300, bbox_inches='tight')
 print(f"\nCombined plot saved as: {output_path}")
 

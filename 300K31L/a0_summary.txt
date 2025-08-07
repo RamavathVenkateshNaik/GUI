@@ -1,0 +1,6 @@
+Dataset 1 (/home/sujith/Documents/ML/31L/300K31L/): a0_avg = 0.910777
+Dataset 2 (/home/sujith/Documents/ML/31L/250K31L/): a0_avg = 0.908735
+Dataset 3 (/home/sujith/Documents/ML/31L/200K31L/): a0_avg = 0.913336
+Dataset 4 (/home/sujith/Documents/ML/31L/150K31L/): a0_avg = 0.916344
+
+Overall average a0 value: 0.912298
