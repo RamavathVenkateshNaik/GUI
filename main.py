@@ -8,14 +8,14 @@ import time
 
 # List of data directories (replace with your actual directories)
 data_directories = [
-    "/home/sujith/Documents/ML/n1a1data/61L/15K61L/",
-    "/home/sujith/Documents/ML/n1a1data/61L/50K61L/",
-    "/home/sujith/Documents/ML/n1a1data/61L/77K61L/",
-    "/home/sujith/Documents/ML/n1a1data/61L/100K61L/",
-    "/home/sujith/Documents/ML/n1a1data/61L/150K61L/",
-    "/home/sujith/Documents/ML/n1a1data/61L/200K61L/",
-    "/home/sujith/Documents/ML/n1a1data/61L/250K61L/",
-    "/home/sujith/Documents/ML/n1a1data/61L/300K61L/"
+    "/home/sujith/Documents/ML/n1a1data/69L/15K69L/",
+    "/home/sujith/Documents/ML/n1a1data/69L/50K69L/",
+    "/home/sujith/Documents/ML/n1a1data/69L/77K69L/",
+    "/home/sujith/Documents/ML/n1a1data/69L/100K69L/",
+    "/home/sujith/Documents/ML/n1a1data/69L/150K69L/",
+    "/home/sujith/Documents/ML/n1a1data/69L/200K69L/",
+    "/home/sujith/Documents/ML/n1a1data/69L/250K69L/",
+    "/home/sujith/Documents/ML/n1a1data/69L/300K69L/"
 ]
 
 data_directories = data_directories[5:]
@@ -62,7 +62,7 @@ for dir_idx, data_dir in enumerate(data_directories):
     x = data[0].values.reshape(-1, 1)
     x_0_idx = np.argmin(np.abs(x))
     # --- Constants ---
-    tsi = 8.14   # given
+    tsi = 9.14   # given
 
     # --- Load z_data from vg.csv ---
     vg = pd.read_csv(vg_path, delimiter='\t', header=None)
@@ -80,7 +80,7 @@ for dir_idx, data_dir in enumerate(data_directories):
     n1_list = []
 
     # --- Initial bounds for a1 and n1 ---
-    a1_bounds = (0.01, 2.75)
+    a1_bounds = (0.01, 2.85)
     n1_bounds = (0.0001, 2)
 
     # --- Calculate linear trend targets ---
