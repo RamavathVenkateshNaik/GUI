@@ -1,26 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Transistor GPR Prediction</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charge Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            padding: 20px;
+        }
+        h1 {
+            color: #003366;
+        }
+        label {
+            display: inline-block;
+            width: 120px;
+        }
+        input[type="number"] {
+            width: 150px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005599;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        .plot {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+        .past-graphs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .past-graphs img {
+            width: 150px;
+            height: auto;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+        .comparison-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            border-top: 2px solid #ccc;
+            padding-top: 10px;
+        }
+        .image-box {
+            position: relative;
+            resize: both;
+            overflow: auto;
+            border: 1px solid #aaa;
+            background: white;
+            padding: 5px;
+        }
+        .image-box img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 16px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h2>Enter Input Parameters</h2>
-    <form method="POST" action="/">
-        <label>Temperature (K): <input type="number" name="temperature" required step="any"></label><br><br>
-        <label>Voltage (V): <input type="number" name="voltage" required step="any"></label><br><br>
-        <label>Layers: <input type="number" name="layers" required></label><br><br>
-        <label>n_max: <input type="number" name="nmax" required step="any"></label><br><br>
-        <button type="submit">Submit</button>
-    </form>
+    <h1>EECS - IISER Bhopal</h1>
 
-    {% if thickness %}
-        <h3>Calculated Thickness: {{ thickness }} meters</h3>
+    <div class="form-container">
+        <form method="post">
+            <div>
+                <label for="temperature">Temperature:</label>
+                <input type="number" name="temperature" step="any" value="{{ temperature }}" required>
+            </div>
+            <div>
+                <label for="voltage">Voltage:</label>
+                <input type="number" name="voltage" step="any" value="{{ voltage }}" required>
+            </div>
+            <div>
+                <label for="layers">Layers:</label>
+                <input type="number" name="layers" value="{{ layers }}" required>
+            </div>
+            <div>
+                <label for="nmax">N-Max:</label>
+                <input type="number" name="nmax" step="any" value="{{ nmax }}" required>
+            </div>
+            <button type="submit">Predict</button>
+        </form>
+    </div>
+
+    {% if thickness is not none %}
+        <p><strong>Calculated Thickness:</strong> {{ thickness }} m</p>
     {% endif %}
 
     {% if plot_url %}
-        <h3>Prediction Graph</h3>
-        <img src="{{ plot_url }}" alt="Graph of Prediction" />
+        <img src="{{ plot_url }}" class="plot" alt="Prediction Plot">
     {% endif %}
+
+    <h2>Past Graphs</h2>
+    <div class="past-graphs">
+        {% for item in history %}
+            <img src="{{ item.plot_image }}" alt="Past Graph" onclick="addToComparison(this.src)">
+        {% endfor %}
+    </div>
+
+    <h2>Comparison Area</h2>
+    <div id="comparisonArea" class="comparison-area"></div>
+
+    <script>
+        function addToComparison(src) {
+            const comparisonArea = document.getElementById('comparisonArea');
+
+            // Create container
+            const box = document.createElement('div');
+            box.className = 'image-box';
+
+            // Create close button
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'close-btn';
+            closeBtn.innerHTML = '×';
+            closeBtn.onclick = () => comparisonArea.removeChild(box);
+
+            // Create image
+            const img = document.createElement('img');
+            img.src = src;
+
+            // Append
+            box.appendChild(closeBtn);
+            box.appendChild(img);
+            comparisonArea.appendChild(box);
+        }
+    </script>
 </body>
 </html>
