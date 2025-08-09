@@ -35,29 +35,47 @@
         .form-container {
             margin-bottom: 20px;
         }
+        .main-content {
+            display: flex;
+            gap: 20px;
+        }
         .plot {
-            margin-top: 20px;
             max-width: 100%;
             height: auto;
+            border: 1px solid #ccc;
+            padding: 5px;
+            background: white;
         }
-        .past-graphs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 15px;
         }
-        .past-graphs img {
-            width: 150px;
-            height: auto;
-            cursor: pointer;
+        table, th, td {
             border: 1px solid #ccc;
         }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+        .thumbnail {
+            width: 80px;
+            height: auto;
+            cursor: pointer;
+            border: 1px solid #aaa;
+        }
         .comparison-area {
+            flex: 1;
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-top: 20px;
-            border-top: 2px solid #ccc;
-            padding-top: 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background: #fafafa;
+            min-height: 300px;
         }
         .image-box {
             position: relative;
@@ -66,6 +84,7 @@
             border: 1px solid #aaa;
             background: white;
             padding: 5px;
+            max-width: 48%;
         }
         .image-box img {
             max-width: 100%;
@@ -108,7 +127,7 @@
             </div>
             <div>
                 <label for="nmax">N-Max:</label>
-                <input type="number" name="nmax" step="any" value="{{ nmax }}" required>
+                <input type="number" name="nmax" step="1" value="{{ nmax }}" required>
             </div>
             <button type="submit">Predict</button>
         </form>
@@ -118,39 +137,62 @@
         <p><strong>Calculated Thickness:</strong> {{ thickness }} m</p>
     {% endif %}
 
-    {% if plot_url %}
-        <img src="{{ plot_url }}" class="plot" alt="Prediction Plot">
-    {% endif %}
-
-    <h2>Past Graphs</h2>
-    <div class="past-graphs">
-        {% for item in history %}
-            <img src="{{ item.plot_image }}" alt="Past Graph" onclick="addToComparison(this.src)">
-        {% endfor %}
+    <div class="main-content">
+        <div style="flex: 1;">
+            {% if plot_url %}
+                <img src="{{ plot_url }}" class="plot" alt="Prediction Plot">
+            {% endif %}
+        </div>
+        <div id="comparisonArea" class="comparison-area">
+            <p style="color: #888;">Click a past graph thumbnail to compare here →</p>
+        </div>
     </div>
 
-    <h2>Comparison Area</h2>
-    <div id="comparisonArea" class="comparison-area"></div>
+    <h2>Past Data</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Voltage</th>
+                <th>Temperature</th>
+                <th>Thickness</th>
+                <th>Graph</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in history %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ item.voltage }}</td>
+                <td>{{ item.temperature }}</td>
+                <td>{{ item.thickness }}</td>
+                <td>
+                    <img src="{{ item.plot_image }}" 
+                         alt="Past Graph" 
+                         class="thumbnail" 
+                         onclick="addToComparison(this.src)">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
     <script>
         function addToComparison(src) {
             const comparisonArea = document.getElementById('comparisonArea');
+            comparisonArea.querySelector('p')?.remove(); // remove hint text
 
-            // Create container
             const box = document.createElement('div');
             box.className = 'image-box';
 
-            // Create close button
             const closeBtn = document.createElement('button');
             closeBtn.className = 'close-btn';
             closeBtn.innerHTML = '×';
             closeBtn.onclick = () => comparisonArea.removeChild(box);
 
-            // Create image
             const img = document.createElement('img');
             img.src = src;
 
-            // Append
             box.appendChild(closeBtn);
             box.appendChild(img);
             comparisonArea.appendChild(box);
