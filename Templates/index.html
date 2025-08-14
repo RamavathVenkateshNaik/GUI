@@ -1,202 +1,136 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charge Prediction</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #ffffff;
-            padding: 20px;
-        }
-        h1 {
-            color: #003366;
-        }
-        label {
-            display: inline-block;
-            width: 120px;
-        }
-        input[type="number"] {
-            width: 150px;
-            padding: 5px;
-            margin-bottom: 10px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #003366;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #005599;
-        }
-        .form-container {
-            margin-bottom: 20px;
-        }
-        .main-content {
-            display: flex;
-            gap: 20px;
-        }
-        .plot {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #ccc;
-            padding: 5px;
-            background: white;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 15px;
-        }
-        table, th, td {
-            border: 1px solid #ccc;
-        }
-        th, td {
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f5f5f5;
-        }
-        .thumbnail {
-            width: 80px;
-            height: auto;
-            cursor: pointer;
-            border: 1px solid #aaa;
-        }
-        .comparison-area {
-            flex: 1;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            background: #fafafa;
-            min-height: 300px;
-        }
-        .image-box {
-            position: relative;
-            resize: both;
-            overflow: auto;
-            border: 1px solid #aaa;
-            background: white;
-            padding: 5px;
-            max-width: 48%;
-        }
-        .image-box img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-        .close-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            line-height: 16px;
-            text-align: center;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <title>Carrier Concentration</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 16px; }
+    .grid { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
+    .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    label { display: block; font-size: 14px; color: #374151; margin-bottom: 4px; }
+    input, select, button {
+      width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;
+    }
+    button { background: #111827; color: #fff; cursor: pointer; }
+    button:hover { background: #0b0f1a; }
+    .vals { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin-top: 12px; }
+    .kv { background: #f9fafb; border: 1px solid #eef2f7; padding: 10px; border-radius: 8px; }
+    .kv .k { color: #6b7280; font-size: 12px; }
+    .kv .v { font-weight: 600; margin-top: 2px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #e5e7eb; }
+    .past { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+    .err { color: #b91c1c; margin: 8px 0; }
+  </style>
 </head>
 <body>
-    <h1>EECS - IISER Bhopal</h1>
+  <h1>Carrier Concentration (n(x))</h1>
+  <div class="grid">
 
-    <div class="form-container">
-        <form method="post">
-            <div>
-                <label for="temperature">Temperature:</label>
-                <input type="number" name="temperature" step="any" value="{{ temperature }}" required>
-            </div>
-            <div>
-                <label for="voltage">Voltage:</label>
-                <input type="number" name="voltage" step="any" value="{{ voltage }}" required>
-            </div>
-            <div>
-                <label for="layers">Layers:</label>
-                <input type="number" name="layers" value="{{ layers }}" required>
-            </div>
-            <div>
-                <label for="nmax">N-Max:</label>
-                <input type="number" name="nmax" step="1" value="{{ nmax }}" required>
-            </div>
-            <button type="submit">Predict</button>
-        </form>
+    <!-- LEFT: Controls + values -->
+    <div class="card">
+      <form id="f">
+        <div class="row">
+          <div>
+            <label for="temperature">Temperature (K)</label>
+            <select id="temperature" name="temperature" required>
+              {% for t in temperatures %}
+                <option value="{{t}}">{{t}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="layers">Layers</label>
+            <select id="layers" name="layers" required>
+              {% for l in layers %}
+                <option value="{{l}}">{{l}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <label for="voltage">Gate Voltage (V)</label>
+          <input id="voltage" name="voltage" type="number" step="0.0001" placeholder="e.g. 0.0871" required />
+        </div>
+
+        <div style="margin-top:12px;">
+          <button type="submit">Compute n(x)</button>
+        </div>
+      </form>
+
+      <div id="err" class="err" style="display:none;"></div>
+
+      <div id="vals" class="vals" style="display:none;">
+        <div class="kv"><div class="k">a0</div><div class="v" id="v_a0">—</div></div>
+        <div class="kv"><div class="k">a1</div><div class="v" id="v_a1">—</div></div>
+        <div class="kv"><div class="k">n0</div><div class="v" id="v_n0">—</div></div>
+        <div class="kv"><div class="k">n1</div><div class="v" id="v_n1">—</div></div>
+        <div class="kv"><div class="k">n_max (from file)</div><div class="v" id="v_nmax">—</div></div>
+        <div class="kv"><div class="k">TSI (nm)</div><div class="v" id="v_tsi">—</div></div>
+      </div>
     </div>
 
-    {% if thickness is not none %}
-        <p><strong>Calculated Thickness:</strong> {{ thickness }} m</p>
-    {% endif %}
-
-    <div class="main-content">
-        <div style="flex: 1;">
-            {% if plot_url %}
-                <img src="{{ plot_url }}" class="plot" alt="Prediction Plot">
-            {% endif %}
-        </div>
-        <div id="comparisonArea" class="comparison-area">
-            <p style="color: #888;">Click a past graph thumbnail to compare here →</p>
-        </div>
+    <!-- RIGHT: Main graph -->
+    <div class="card">
+      <div><img id="main" alt="carrier concentration" src="" /></div>
     </div>
+  </div>
 
-    <h2>Past Data</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>S.No</th>
-                <th>Voltage</th>
-                <th>Temperature</th>
-                <th>Thickness</th>
-                <th>Graph</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in history %}
-            <tr>
-                <td>{{ loop.index }}</td>
-                <td>{{ item.voltage }}</td>
-                <td>{{ item.temperature }}</td>
-                <td>{{ item.thickness }}</td>
-                <td>
-                    <img src="{{ item.plot_image }}" 
-                         alt="Past Graph" 
-                         class="thumbnail" 
-                         onclick="addToComparison(this.src)">
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <!-- Past data grid -->
+  <div class="card">
+    <h3>Past Data (same V across other T, Layers)</h3>
+    <div id="past" class="past"></div>
+  </div>
 
-    <script>
-        function addToComparison(src) {
-            const comparisonArea = document.getElementById('comparisonArea');
-            comparisonArea.querySelector('p')?.remove(); // remove hint text
+<script>
+const f = document.getElementById("f");
+const err = document.getElementById("err");
+const vals = document.getElementById("vals");
 
-            const box = document.createElement('div');
-            box.className = 'image-box';
+f.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  err.style.display = "none";
 
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'close-btn';
-            closeBtn.innerHTML = '×';
-            closeBtn.onclick = () => comparisonArea.removeChild(box);
+  const fd = new FormData(f);
+  const res = await fetch("/predict", { method: "POST", body: fd });
+  const data = await res.json();
 
-            const img = document.createElement('img');
-            img.src = src;
+  if (!res.ok) {
+    err.textContent = data.error || "Something went wrong.";
+    err.style.display = "block";
+    return;
+  }
 
-            box.appendChild(closeBtn);
-            box.appendChild(img);
-            comparisonArea.appendChild(box);
-        }
-    </script>
+  // Update parameter cards
+  vals.style.display = "grid";
+  document.getElementById("v_a0").textContent   = data.params.a0.toFixed(6);
+  document.getElementById("v_a1").textContent   = data.params.a1.toFixed(6);
+  document.getElementById("v_n0").textContent   = data.params.n0.toFixed(6);
+  document.getElementById("v_n1").textContent   = data.params.n1.toFixed(6);
+  document.getElementById("v_nmax").textContent = data.params.n_max.toExponential(4);
+  document.getElementById("v_tsi").textContent  = data.params.tsi.toFixed(5);
+
+  // Main graph
+  document.getElementById("main").src = "data:image/png;base64," + data.main_graph;
+
+  // Past data cards
+  const past = document.getElementById("past");
+  past.innerHTML = "";
+  data.past_graphs.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div style="font-size:14px; margin-bottom:6px;">
+        <strong>${p.temp}K, ${p.layers}L</strong><br/>
+        a0=${p.a0.toFixed(4)}, a1=${p.a1.toFixed(4)}, n0=${p.n0.toFixed(4)}, n1=${p.n1.toFixed(4)}<br/>
+        n_max=${Number(p.n_max).toExponential(4)}
+      </div>
+      <img src="data:image/png;base64,${p.graph}" alt="past graph"/>
+    `;
+    past.appendChild(div);
+  });
+});
+</script>
 </body>
 </html>
